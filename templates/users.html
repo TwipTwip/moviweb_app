@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - MovieWeb App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<h1>Users</h1>
+{% for user in users %}
+{% for user_info in user %}
+<div class="user">
+    <h3>User ID: {{ user_info }}</h3>
+    <h2>{{ user[user_info]['name'] }}</h2>
+    <h2><a href="/users/{{ user_info }}" methods="GET">User's Favorite Movies</a></h2>
+</div>
+{% endfor %}
+{% endfor %}
+</body>
+</html>

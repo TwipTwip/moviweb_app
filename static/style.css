@@ -1,0 +1,23 @@
+body {
+font-family: Monospace, Andalé Mono;
+padding: 10px;
+}
+
+h1 {
+padding 20px;
+font-family: Monospace, Andalé Mono;
+}
+
+.user {
+    background-color: color:white;
+    border: 1px solid black;
+    padding: 20px;
+    margin-bottom: 10px;
+}
+
+.movies {
+    background-color: color:white;
+    border: 1px solid black;
+    padding: 20px;
+    margin-bottom: 10px;
+}
