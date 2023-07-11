@@ -2,11 +2,25 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, and_
-
+from data_managers.sqlite_data_manager import SQLiteDataManager
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///data/usermovies.sqlite"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+data_manager = SQLiteDataManager('sqlite:///data/usermovies.sqlite')
+
 MOVIE_API = "http://www.omdbapi.com/?apikey=a27c1668&t="
+
+db = SQLAlchemy()
+db.init_app(app)
+
+engine = create_engine('sqlite:///data/usermovies.sqlite')
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+db.create_all()
 
 
 @app.route('/')
