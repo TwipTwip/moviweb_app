@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add movie form</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<h1>Add movie to user's list</h1>
+<h3>The year of the movie is optional but recommend
+if you know the year of the movie</h3>
+<form action="{{ url_for('add_movie', user_id=user_id) }}" method="POST">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required>
+    <label for="year">Year:</label>
+    <input type="number" id="year" name="year">
+    <input type="submit" value="Submit">
+</form>
+</body>
+</html>

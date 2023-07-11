@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home page</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<h1>This is the home page for my movies' app :).</h1><br>
+<h2>There's not a lot on this page but there is a quick access link<br>
+to get to the list of users, all the other necessary function are<br>
+with the users</h2>
+<h2>Also, to add a movie you <strong>NEED</strong> to click on the user's favorite movies, so you can<br>
+see what movies they have already</h2>
+<h1><a href="{{ url_for('list_users') }}">List of Users Page</a></h1>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update movie form</title>
+</head>
+<body>
+<h1>Update movie info</h1>
+<h4>This form can only update the title and the rating.<br>
+The title can be updated because the user might have a nickname for it, and the <br>
+rating can be updated because the user might want their personal rating for the movie</h4>
+<form action="{{ url_for('update_movie', user_id=user_id, movie_id=movie_id) }}" method="POST">
+    <label for="title">Title:</label><br>
+    <input type="text" id="title" name="title" value="{{ movie.title }}"><br>
+    <label for="rating">Rating:</label><br>
+    <input type="text" id="rating" name="rating" value="{{ movie.rating }}"><br>
+    <input type="submit" value="Update">
+</form>
+</body>
+</html>

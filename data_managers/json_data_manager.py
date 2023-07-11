@@ -37,7 +37,6 @@ class JSONDataManager(DataManagerInterface):
             # str_counter = str(str_counter)
             # movie_data = {"id": id_counter, "name": users[counter][str_counter]['name']}
             all_movie_info.append(user)
-        print(all_movie_info)
         return all_movie_info
 
     def get_user_movies(self, user_id):
@@ -50,11 +49,10 @@ class JSONDataManager(DataManagerInterface):
                 counter += 1
                 if str(user_id) == str(key):
                     user_movies = users[counter][key]['movies']
-                    for movie in user_movies:
-                        print(f"{movie['title']}({movie['year']}), "
-                              f"Director: {movie['director']}, Movie ID: {movie['id']}")
+                    # for movie in user_movies:
+                    #     print(f"{movie['title']}({movie['year']}), "
+                    #           f"Director: {movie['director']}, Movie ID: {movie['id']}")
         return user_movies
-
 
     def get_username_by_id(self, user_id):
         with open(self.filename, "r") as user_info:
@@ -65,6 +63,7 @@ class JSONDataManager(DataManagerInterface):
                     user_name = user[id]['name']
                     return user_name
         return None
+
 
 # JSONDataManager("users.json").get_all_users()
 # JSONDataManager("../storage/users.json").get_user_movies(1)

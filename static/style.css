@@ -6,6 +6,7 @@ padding: 10px;
 h1 {
 padding 20px;
 font-family: Monospace, Andalé Mono;
+font-size: 40px;
 }
 
 .user {
@@ -20,4 +21,22 @@ font-family: Monospace, Andalé Mono;
     border: 1px solid black;
     padding: 20px;
     margin-bottom: 10px;
+}
+
+label {
+font-size: 20px
+}
+
+.container {
+display:flex;
+flex-wrap: wrap;
+flex-direction: row;
+padding: 40px;
+}
+
+.box {
+width: 300px;
+height: 800px;
+border: 2px solid black;
+padding: 20px;
 }

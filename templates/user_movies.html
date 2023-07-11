@@ -7,14 +7,24 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<h1>{{ user_name }} favorite movies</h1>
-{% for movie in user_movies %}
-<div class="movies">
+<h1>{{ user_name }} favorite movies</h1> <h2><a href="{{ url_for('add_movie', user_id=user_id) }}">Add a movie to {{ user_name }} list</a></h2>
+<h2><a href="{{ url_for('list_users') }}">Return to users page</a></h2>
+<div class = "container">
+    {% for movie in user_movies %}
+    <div class="box">
     <h3>Movie ID: {{ movie.id }}</h3>
     <h2>Title: {{movie.title }}</h2>
-    <h3>Year released: {{ movie.year }}</h3>
+    <h3>Year released: {{ movie.year }}</h3><img src="{{ movie.poster }}" alt="Movie Poster">
     <h3>Director: {{ movie.director }}</h3>
-</div>
+    <h3>Rating: {{ movie.rating }}</h3><br>
+    <form action="{{ url_for('update_movie', user_id=user_id, movie_id=movie.id) }}" method="GET">
+        <button type="submit">Update movie</button>
+    </form><br>
+    <form action="{{ url_for('delete_movie', user_id=user_id, movie_id=movie.id) }}" method="POST">
+        <button type="submit">Delete movie</button>
+    </form>
+    </div>
 {% endfor %}
+</div>
 </body>
 </html>
