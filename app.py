@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for
-from data_managers.json_data_manager import JSONDataManager
-import requests
-import json
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, and_
+
 
 app = Flask(__name__)
-data_manager = JSONDataManager('storage/users.json')
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///data/usermovies.sqlite"
 MOVIE_API = "http://www.omdbapi.com/?apikey=a27c1668&t="
 
 
