@@ -9,13 +9,11 @@
 <body>
 <h1>Users</h1> <h2><a href="{{ url_for('add_user') }}">Add a new user</a></h2>
 {% for user in users %}
-{% for user_info in user %}
 <div class="user">
-    <h3>User ID: {{ user_info }}</h3>
-    <h2>{{ user[user_info]['name'] }}</h2>
-    <h2><a href="/users/{{ user_info }}" methods="GET">User's Favorite Movies</a></h2>
+    <h3>User ID: {{ user.id }}</h3>
+    <h2>{{ user.username }}</h2>
+    <h2><a href="/users/{{ user.id }}" methods="GET">User's Favorite Movies</a></h2>
 </div>
-{% endfor %}
 {% endfor %}
 </body>
 </html>

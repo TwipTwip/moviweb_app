@@ -2,25 +2,20 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, and_
-from data_managers.sqlite_data_manager import SQLiteDataManager
+from data_managers.sqlite_data_manager import SQLiteDataManager, Base
+import requests
+import sqlalchemy
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///data/usermovies.sqlite"
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///data/user_movies.sqlite"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-data_manager = SQLiteDataManager('sqlite:///data/usermovies.sqlite')
 
 MOVIE_API = "http://www.omdbapi.com/?apikey=a27c1668&t="
 
-db = SQLAlchemy()
-db.init_app(app)
+data_manager = SQLiteDataManager("sqlite:///data/user_movies.sqlite", app)
 
-engine = create_engine('sqlite:///data/usermovies.sqlite')
-
-Session = sessionmaker(bind=engine)
-session = Session()
-
-db.create_all()
+# data_manager.db.create_all()
 
 
 @app.route('/')
@@ -43,8 +38,8 @@ def list_users():
 def list_user_movies(user_id):
     """Lists all the users"""
     user_movies = data_manager.get_user_movies(user_id)
-    user_name = data_manager.get_username_by_id(user_id)
-    user_name = user_name + "'" + "s"
+    user = data_manager.get_username_by_id(user_id)
+    user_name = user.username + "'" + "s"
     return render_template('user_movies.html', user_movies=user_movies, user_name=user_name, user_id=user_id)
 
 
@@ -52,19 +47,8 @@ def list_user_movies(user_id):
 def add_user():
     """Opens a form to add a new user to the list of users"""
     if request.method == 'POST':
-        with open("storage/users.json", "r") as user_info:
-            users = json.loads(user_info.read())
-            users = list(users)
-            counter = 0
-            for user in users:
-                counter += 1
-        new_id = counter + 1
-        name = request.form.get('name')
-        movies = []
-        new_user = {new_id: {'name': name, 'movies': movies}}
-        users.append(new_user)
-        with open("storage/users.json", "w") as add:
-            add.write(json.dumps(users))
+        username = request.form.get("username")
+        data_manager.add_user(username=username)
         return redirect(url_for("list_users"))
     return render_template('add_user.html')
 
@@ -94,55 +78,11 @@ def add_movie(user_id):
                 return "The movie entered does not exist or could not be found"
         user_movies = data_manager.get_user_movies(user_id)
         user_name = data_manager.get_username_by_id(user_id)
-        user_movies = list(user_movies)
-
-        # This entire section of code is here for if a new user is added and their list is empty
-        if len(user_movies) == 0:
-            user_movies = []
-            movie_data = {"id": 1,
-                          "title": returned_movie_info["Title"],
-                          "director": returned_movie_info["Director"],
-                          "year": int(returned_movie_info["Year"]),
-                          "poster": returned_movie_info["Poster"],
-                          "rating": float(returned_movie_info["imdbRating"])}
-            user_movies.append(movie_data)
-            with open("storage/users.json", "r") as new_movie:
-                users = json.loads(new_movie.read())
-                users = list(users)
-                for user in users:
-                    for user_info in user:
-                        if user[user_info]['name'] == user_name:
-                            user[user_info]['movies'] = user_movies
-                            user_id = user_info
-                            other_id = user_info
-            with open("storage/users.json", "w") as new_data:
-                new_data.write(json.dumps(users))
-            return redirect(url_for('list_user_movies', user_id=user_id))
-
-        # This is where the 'regular' code returns if the user has movies in their list
-        movie_ids = []
-        for movie in user_movies:
-            movie_ids.append(movie['id'])
-        new_movie_id = max(movie_ids) + 1
-        movie_data = {"id": new_movie_id,
-                      "title": returned_movie_info["Title"],
-                      "director": returned_movie_info["Director"],
-                      "year": int(returned_movie_info["Year"]),
-                      "poster": returned_movie_info["Poster"],
-                      "rating": float(returned_movie_info["imdbRating"])}
-        user_movies.append(movie_data)
-        with open("storage/users.json", "r") as new_movie:
-            users = json.loads(new_movie.read())
-            users = list(users)
-            for user in users:
-                for user_info in user:
-                    if user[user_info]['name'] == user_name:
-                        user[user_info]['movies'] = user_movies
-                        user_id = user_info
-                        other_id = user_info
-        with open("storage/users.json", "w") as new_data:
-            new_data.write(json.dumps(users))
-        return redirect(url_for('list_user_movies', user_id=other_id))
+        try:
+            data_manager.add_movie(returned_movie_info, user_id)
+        except sqlalchemy.exc.IntegrityError:
+            return "Another user already has this movie in their list, please try adding a different movie"
+        return redirect(url_for('list_user_movies', user_id=user_id))
     return render_template('add_movie.html', user_id=user_id)
 
 
@@ -155,55 +95,25 @@ def update_movie(user_id, movie_id):
     look empty and redundant.The title is also there because maybe the user has a nickname for the movie
     or want to change the name of the movie for some reason."""
     if request.method == "POST":
-        movies = data_manager.get_user_movies(user_id)
-        movies_to_keep = []
-        for movie in movies:
-            movies_to_keep.append(movie)
         title = request.form.get('title')
         rating = request.form.get('rating')
         try:
             rating = float(rating)
         except ValueError:
             return "The wrong type of data was entered, the rating MUST be a number"
-        for movie in movies_to_keep:
-            if int(movie['id']) == int(movie_id):
-                movie['title'] = title
-                movie['rating'] = rating
-        with open("storage/users.json", "r") as user_data:
-            users = json.loads(user_data.read())
-            for user in users:
-                for user_info in user:
-                    if int(user_info) == int(user_id):
-                        user[user_info]['movies'] = movies_to_keep
-        with open("storage/users.json", "w") as new_info:
-            new_info.write(json.dumps(users))
+        data_manager.update_movie(movie_id, title, rating)
         return redirect(url_for('list_user_movies', user_id=user_id))
-    movies = data_manager.get_user_movies(user_id)
-    for movie in movies:
-        if int(movie['id']) == int(movie_id):
-            movie_info = movie
-    print(movie_info)
-    return render_template('update_movie.html', movie_id=movie_id, user_id=user_id, movie=movie_info)
+    movie_info = data_manager.get_movie_info(movie_id)
+    movie_data = {'title': movie_info.title,
+                  'rating': movie_info.rating
+                  }
+    return render_template('update_movie.html', movie_id=movie_id, user_id=user_id, movie=movie_data)
 
 
 @app.route('/users/<user_id>/delete_movie/<movie_id>', methods=["POST"])
 def delete_movie(user_id, movie_id):
     """Deletes a specified movie"""
-    movies = data_manager.get_user_movies(user_id)
-    user_name = data_manager.get_username_by_id(user_id)
-    counter = -1
-    for movie in movies:
-        counter += 1
-        if int(movie['id']) == int(movie_id):
-            del movies[counter]
-    with open("storage/users.json", "r") as info:
-        users = json.loads(info.read())
-        for user in users:
-            for user_info in user:
-                if user_name == user[user_info]['name']:
-                    user[user_info]['movies'] = movies
-    with open("storage/users.json", "w") as new_data:
-        new_data.write(json.dumps(users))
+    data_manager.delete_movie(movie_id)
     return redirect(url_for('list_user_movies', user_id=user_id))
 
 
