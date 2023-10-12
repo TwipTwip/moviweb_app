@@ -40,6 +40,7 @@ def delete_user(user_id):
 
 @app.route('/movies', methods=['GET'])
 def list_movies():
+    """Lists all the added movies"""
     movies = data_manager.get_all_movies()
     users = data_manager.get_all_users()
     return render_template('movies.html', movies=movies, users=users)
@@ -47,6 +48,7 @@ def list_movies():
 
 @app.route('/movies/<movie_id>')
 def list_reviews(movie_id):
+    """Lists all the reviews for the selected"""
     reviews = data_manager.list_reviews(movie_id)
     movie = data_manager.get_movie_info(movie_id)
     return render_template('list_reviews.html', reviews=reviews, movie=movie)
@@ -54,6 +56,7 @@ def list_reviews(movie_id):
 
 @app.route('/movies/<movie_id>/add_review', methods=['GET', 'POST'])
 def add_review(movie_id):
+    """Adds a review to the selected movie"""
     if request.method == 'POST':
         user_id = request.form.get("user_id")
         rating = request.form.get("rating")
@@ -81,6 +84,7 @@ def delete_review(movie_id, review_id):
 
 @app.route('/movies/<movie_id>/update_review/<review_id>', methods=['GET', 'POST'])
 def update_review(movie_id, review_id):
+    """Updates selected review"""
     if request.method == 'POST':
         new_rating = request.form.get('rating')
         new_text = request.form.get('review_text')
