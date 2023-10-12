@@ -17,9 +17,9 @@
     <h3>Year released: {{ movie.year }}</h3><img src="{{ movie.poster }}" alt="Movie Poster">
     <h3>Director: {{ movie.director }}</h3>
     <h3>Rating: {{ movie.rating }}</h3><br>
-    <form action="{{ url_for('update_movie', user_id=user_id, movie_id=movie.id) }}" method="GET">
-        <button type="submit">Update movie</button>
-    </form><br>
+    <form action="{{ url_for('update_movie', user_id=user_id, movie_id=movie.id) }}" method="GET"></form>
+        <button type="submit">Update movie</button><br>
+
     <form action="{{ url_for('delete_movie', user_id=user_id, movie_id=movie.id) }}" method="POST">
         <button type="submit">Delete movie</button>
     </form>

@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from flask_sqlalchemy import SQLAlchemy
 from moviweb_app.data_managers.data_manager_interface import DataManagerInterface
-from moviweb_app.data_managers.models import User, Movie
+from moviweb_app.data_managers.models import User, Movie, Review
 
 Base = declarative_base()
 
@@ -75,5 +75,57 @@ class SQLiteDataManager(DataManagerInterface):
     def delete_movie(self, movie_id):
         with self.app.app_context():
             self.session.query(Movie).filter(Movie.id == movie_id).delete()
+            self.session.query(Review).filter(Review.movie_id == movie_id).delete()
             self.session.commit()
         return "Movie has successfully been deleted"
+
+    def get_all_movies(self):
+        with self.app.app_context():
+            movies = self.session.query(Movie).all()
+        return movies
+
+    def list_reviews(self, movie_id):
+        with self.app.app_context():
+            reviews = self.session.query(Review).filter(Review.movie_id == movie_id).all()
+        return reviews
+
+    def add_review(self, user_id, movie_id, rating, review_text):
+        with self.app.app_context():
+            review = Review(
+                movie_id=movie_id,
+                user_id=user_id,
+                rating=rating,
+                review_text=review_text
+            )
+            self.session.add(review)
+            self.session.commit()
+
+        return "Review has been successfully added"
+
+    def update_review(self, review_id, new_rating, new_text_review):
+        with self.app.app_context():
+            review_to_update = self.session.query(Review).filter(Review.id == review_id).one()
+            review_to_update.rating = new_rating
+            review_to_update.review_text = new_text_review
+            self.session.commit()
+
+        return "Review has successfully been updated"
+
+    def delete_review(self, review_id):
+        with self.app.app_context():
+            self.session.query(Review).filter(Review.id == review_id).delete()
+            self.session.commit()
+        return "Review has successfully been deleted"
+
+    def get_review(self, review_id):
+        with self.app.app_context():
+            review = self.session.query(Review).filter(Review.id == review_id).one()
+            return review
+
+    def delete_user(self, user_id):
+        with self.app.app_context():
+            self.session.query(User).filter(User.id == user_id).delete()
+            self.session.query(Movie).filter(Movie.user_id == user_id).delete()
+            self.session.query(Review).filter(Review.user_id == user_id).delete()
+            self.session.commit()
+        return "User has successfully been defeated"

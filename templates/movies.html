@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Movies</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<h2><a href="{{ url_for('home') }}">Return to home page</a></h2>
+<div class = "container">
+    {% for movie in movies %}
+    <div class="box">
+    <h3>Movie ID: {{ movie.id }}</h3>
+    <h2>Title: {{movie.title }}</h2>
+    <h3>Year released: {{ movie.year }}</h3><img src="{{ movie.poster }}" alt="Movie Poster">
+    <h3>Director: {{ movie.director }}</h3>
+    <h3>Rating: {{ movie.rating }}</h3><br>
+    <form action="{{ url_for('add_review', movie_id=movie.id, users=users) }}">
+        <button type="submit">Add review</button>
+    </form><br>
+    <h4><a href="{{ url_for('list_reviews', movie_id=movie.id, movie_name=movie.title) }}">View all reviews for {{ movie.title }}</a></h4>
+    </div>
+{% endfor %}
+</div>
+</body>
+</html>

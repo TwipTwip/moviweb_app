@@ -10,20 +10,17 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///data/user_movies.sqlite"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
 MOVIE_API = "http://www.omdbapi.com/?apikey=a27c1668&t="
 
 data_manager = SQLiteDataManager("sqlite:///data/user_movies.sqlite", app)
+
 
 # data_manager.db.create_all()
 
 
 @app.route('/')
 def home():
-    """Simple home page. Also, this code ONLY works with json right now but the person using the
-    website wouldn't be able to tell, this is just a little note. Another little side note is that if
-    you want to see what the webpage looks like with 7 or more movies navigate to the user 'Dylan'(Me)
-    and there are 8 movies in that user's favorite movies."""
+    """Simple home page"""
     return render_template('home.html')
 
 
@@ -32,6 +29,68 @@ def list_users():
     """Lists all the users"""
     users = data_manager.get_all_users()
     return render_template('users.html', users=users)
+
+
+@app.route('/user/delete_user/<user_id>', methods=['POST'])
+def delete_user(user_id):
+    """Deletes selected user"""
+    data_manager.delete_user(user_id)
+    return redirect(url_for('list_users'))
+
+
+@app.route('/movies', methods=['GET'])
+def list_movies():
+    movies = data_manager.get_all_movies()
+    users = data_manager.get_all_users()
+    return render_template('movies.html', movies=movies, users=users)
+
+
+@app.route('/movies/<movie_id>')
+def list_reviews(movie_id):
+    reviews = data_manager.list_reviews(movie_id)
+    movie = data_manager.get_movie_info(movie_id)
+    return render_template('list_reviews.html', reviews=reviews, movie=movie)
+
+
+@app.route('/movies/<movie_id>/add_review', methods=['GET', 'POST'])
+def add_review(movie_id):
+    if request.method == 'POST':
+        user_id = request.form.get("user_id")
+        rating = request.form.get("rating")
+        review_text = request.form.get("review_text")
+
+        data_manager.add_review(user_id, movie_id, rating, review_text)
+
+        movies = data_manager.get_all_movies()
+        users = data_manager.get_all_users()
+        return redirect(url_for('list_movies', movies=movies, users=users))
+
+    users = data_manager.get_all_users()
+    return render_template('add_review.html', movie_id=movie_id, users=users)
+
+
+@app.route('/movies/<movie_id>/delete_review/<review_id>', methods=['POST'])
+def delete_review(movie_id, review_id):
+    """Deletes a specified review"""
+    data_manager.delete_review(review_id)
+
+    reviews = data_manager.list_reviews(movie_id)
+    movie = data_manager.get_movie_info(movie_id)
+    return redirect(url_for('list_reviews', reviews=reviews, movie_id=movie.id))
+
+
+@app.route('/movies/<movie_id>/update_review/<review_id>', methods=['GET', 'POST'])
+def update_review(movie_id, review_id):
+    if request.method == 'POST':
+        new_rating = request.form.get('rating')
+        new_text = request.form.get('review_text')
+        data_manager.update_review(review_id, new_rating, new_text)
+        reviews = data_manager.list_reviews(movie_id)
+        movie = data_manager.get_movie_info(movie_id)
+        return redirect(url_for('list_reviews', reviews=reviews, movie_id=movie.id))
+    review = data_manager.get_review(review_id)
+    rating = review.rating
+    return render_template('update_review.html', review=review, movie_id=movie_id, review_id=review_id)
 
 
 @app.route('/users/<user_id>')

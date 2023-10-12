@@ -8,11 +8,15 @@
 </head>
 <body>
 <h1>Users</h1> <h2><a href="{{ url_for('add_user') }}">Add a new user</a></h2>
+<h2><a href="{{ url_for('home') }}">Back to home page</a></h2>
 {% for user in users %}
 <div class="user">
     <h3>User ID: {{ user.id }}</h3>
     <h2>{{ user.username }}</h2>
-    <h2><a href="/users/{{ user.id }}" methods="GET">User's Favorite Movies</a></h2>
+    <h2><a href="/users/{{ user.id }}" methods="GET">User's Favorite Movies</a></h2><br>
+    <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST">
+        <button type="submit">Delete User</button>
+    </form>
 </div>
 {% endfor %}
 </body>
