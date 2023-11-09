@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, and_
@@ -6,13 +6,14 @@ from data_managers.sqlite_data_manager import SQLiteDataManager, Base
 import requests
 import sqlalchemy
 
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///data/user_movies.sqlite"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+api = Blueprint('api', __name__)
+app.register_blueprint(api, url_prefix='/api')
+data_manager = SQLiteDataManager('sqlite:///data/user_movies.sqlite', app)
 MOVIE_API = "http://www.omdbapi.com/?apikey=a27c1668&t="
-
-data_manager = SQLiteDataManager("sqlite:///data/user_movies.sqlite", app)
 
 
 # data_manager.db.create_all()
